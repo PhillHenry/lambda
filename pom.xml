@@ -3,7 +3,12 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.henryp</groupId>
     <artifactId>lambda</artifactId>
+    <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
+    <modules>
+        <module>thirdparty</module>
+        <module>actors</module>
+    </modules>
     <properties>
         <scala.version>2.11.7</scala.version>
         <akka.version>2.3.12</akka.version>

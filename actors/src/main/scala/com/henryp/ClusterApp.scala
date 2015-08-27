@@ -58,6 +58,6 @@ object ClusterApp extends App {
     )
 
     val clusterRouterGroup = ClusterRouterGroup(loadBalancingGroup, clusterRouterGroupSettings)
-    val clusterActor = actorSystem.actorOf(clusterRouterGroup.props, "clusterWideRouter")
+    val clusterActor = actorSystem.actorOf(clusterRouterGroup.props(), "clusterWideRouter")
   }
 }
