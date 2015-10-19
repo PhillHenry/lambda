@@ -8,12 +8,16 @@
     <modules>
         <module>kafka</module>
         <module>actors</module>
+        <module>hadoop</module>
+        <module>spark</module>
     </modules>
     <properties>
         <scala.version>2.11.7</scala.version>
         <akka.version>2.3.12</akka.version>
         <kafka.version>0.8.2.2</kafka.version>
         <commons-io.version>2.4</commons-io.version>
+        <hadoop.version>2.6.0</hadoop.version>
+        <spark.version>1.5.1</spark.version>
     </properties>
 
     <build>
