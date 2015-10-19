@@ -10,6 +10,7 @@
         <module>actors</module>
         <module>hadoop</module>
         <module>spark</module>
+        <module>integration-tests</module>
     </modules>
     <properties>
         <scala.version>2.11.7</scala.version>
