@@ -6,12 +6,14 @@
     <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
     <modules>
-        <module>thirdparty</module>
+        <module>kafka</module>
         <module>actors</module>
     </modules>
     <properties>
         <scala.version>2.11.7</scala.version>
         <akka.version>2.3.12</akka.version>
+        <kafka.version>0.8.2.2</kafka.version>
+        <commons-io.version>2.4</commons-io.version>
     </properties>
 
     <build>
@@ -44,67 +46,11 @@
                     <target/>
                 </configuration>
             </plugin>
-            <!-- Run with:
-
-                    mvn compile exec:java -Dport=9119 -Dhost=127.0.0.1
-
-            -->
-            <!--
-            <plugin>
-              <groupId>org.codehaus.mojo</groupId>
-              <artifactId>exec-maven-plugin</artifactId>
-              <version>1.3.2</version>
-              <executions>
-                <execution>
-                  <goals>
-                    <goal>java</goal>
-                  </goals>
-                </execution>
-              </executions>
-              <configuration>
-                <executable>java</executable>
-                <keepAlive>true</keepAlive>
-                <mainClass>com.henryp.ClusterApp</mainClass>
-                <workingDirectory>.</workingDirectory>
-                <arguments>
-                  <argument>${port}</argument>
-                  <argument>${host}</argument>
-                </arguments>
-                <systemProperties>
-                  <systemProperty>
-                    <key>XXX</key>
-                    <value>YYY</value>
-                  </systemProperty>
-                </systemProperties>
-              </configuration>
-            </plugin>
-            -->
         </plugins>
     </build>
 
 
     <dependencies>
-        <dependency>
-            <groupId>com.typesafe.akka</groupId>
-            <artifactId>akka-actor_2.11</artifactId>
-            <version>${akka.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.typesafe.akka</groupId>
-            <artifactId>akka-cluster_2.11</artifactId>
-            <version>${akka.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.typesafe.akka</groupId>
-            <artifactId>akka-contrib_2.11</artifactId>
-            <version>${akka.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.typesafe.akka</groupId>
-            <artifactId>akka-testkit_2.11</artifactId>
-            <version>${akka.version}</version>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -125,17 +71,5 @@
         </dependency>
 
     </dependencies>
-    <!--
-      <reporting>
-        <plugins>
-          <plugin>
-            <groupId>org.scala-tools</groupId>
-            <artifactId>maven-scala-plugin</artifactId>
-            <configuration>
-              <scalaVersion>${scala.version}</scalaVersion>
-            </configuration>
-          </plugin>
-        </plugins>
-      </reporting>
-      -->
+
 </project>
