@@ -16,4 +16,12 @@ trait MiniDfsClusterRunning {
   val distributedFS = hdfsCluster.getFileSystem
   val hdfsUri = "hdfs://127.0.0.1:" + hdfsCluster.getNameNodePort + "/"
 
+  def list(path: String): Unit = {
+    println(s"Looking in $path")
+    val listing = distributedFS.getClient.listPaths(path, Array[Byte]())
+    while (listing.hasMore) {
+      println("File " + new String(listing.getLastName))
+    }
+  }
+
 }

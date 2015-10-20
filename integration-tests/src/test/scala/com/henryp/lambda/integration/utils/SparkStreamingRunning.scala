@@ -8,9 +8,13 @@ import org.apache.spark.streaming.{Duration, StreamingContext}
 
 import scala.reflect.ClassTag
 
-abstract class SparkStreamingRunning[K: ClassTag, V: ClassTag, KD <: Decoder[K] : ClassTag, VD <: Decoder[V] : ClassTag] extends MiniDfsClusterRunning with KafkaRunning {
+abstract class SparkStreamingRunning[K: ClassTag, V: ClassTag, KD <: Decoder[K] : ClassTag, VD <: Decoder[V] : ClassTag]
+  extends MiniDfsClusterRunning with KafkaRunning {
 
-  val checkpointFolder = hdfsUri + "checkpoint_directory"
+  val batchDuration = Duration(1000)
+
+  val checkPointRelativeFolder = "checkpoint_directory"
+  val checkpointFolder = hdfsUri + checkPointRelativeFolder
 
   val streamingContext = StreamingContext.getOrCreate(checkpointFolder, creatingFunc(checkpointFolder))
   streamingContext.start()
@@ -19,7 +23,7 @@ abstract class SparkStreamingRunning[K: ClassTag, V: ClassTag, KD <: Decoder[K] 
     val sparkConf = new SparkConf().setMaster("local[*]").setAppName("myAppName")
       .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
       .set("spark.ui.enabled", "false")
-    val streamingContext = new StreamingContext(sparkConf, Duration(5000))
+    val streamingContext = new StreamingContext(sparkConf, batchDuration)
     streamingContext.checkpoint(checkpointFolder)
 
     println(s"PORTS: kafka = $kafkaPort, zookeeper = $zkPort")
