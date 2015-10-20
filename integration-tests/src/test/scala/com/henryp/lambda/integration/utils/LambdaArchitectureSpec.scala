@@ -25,14 +25,19 @@ class LambdaArchitectureSpec extends WordSpec with Matchers {
         LambdaArchitectureSpec.consumingFn(path)
       }
 
+      val filesBefore = list("/")
+
+      withClue(filesBefore.mkString(" ")) {
+        filesBefore should have size 0
+      }
+
       val producer = KafkaProducerSetUp[Array[Byte], Array[Byte]](kafkaProperties)
       val message = new KeyedMessage(topicName, "key".getBytes, "value".getBytes)
       producer.send(message)
 
-      Thread.sleep(20000) //(batchDuration.milliseconds * 2).toInt)
+      Thread.sleep((batchDuration.milliseconds * 2).toInt)
 
-      list("/")
-      list("/" + checkPointRelativeFolder)
+      list("/") should not be empty
     }
   }
 
