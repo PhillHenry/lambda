@@ -10,4 +10,6 @@ trait Logging {
     println(msg) // TODO - some proper logging
   }
 
+  def debug(msg: String): Unit = println(msg) // TODO proper debugging
+
 }

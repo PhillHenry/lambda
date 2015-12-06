@@ -1,5 +1,6 @@
-package com.henryp.lambda.integration.utils
+package com.henryp.lambda.integration
 
+import com.henryp.lambda.integration.utils.SparkStreamingWithKafkaRunning
 import com.henryp.lambda.logging.Logging
 import com.henryp.thirdparty.kafka.KafkaProducerSetUp
 import kafka.producer.KeyedMessage
