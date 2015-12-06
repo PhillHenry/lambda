@@ -2,6 +2,8 @@ package com.henryp.lambda.spark.streaming.lmax
 
 import com.henryp.lambda.logging.Logging
 import com.lmax.api.account.LoginRequest.ProductType.CFD_DEMO
+import com.lmax.api.orderbook.OrderBookEvent
+import org.apache.spark.streaming.dstream.ReceiverInputDStream
 import org.apache.spark.streaming.{Duration, StreamingContext}
 import org.apache.spark.{SparkConf, SparkContext}
 
@@ -29,18 +31,27 @@ object LmaxStreamingMain extends Logging {
   }
 
   def main(args: Array[String]): Unit = {
-    parseArgs(args).foreach { config =>
-      val receiver = new MarketDataReceiver(config.url, config.username, config.password, CFD_DEMO)
-      val ssc = new StreamingContext(getSparkContext(config), Duration(10000))
+    val dStreamOpt  = createStream(parseArgs(args))
+    val streamFn    = new LmaxStreamConsumer
+    dStreamOpt.foreach { stream =>
+      streamFn(stream)
+    }
+  }
+
+  def createStream(configOpt: Option[LmaxStreamingConfig]): Option[ReceiverInputDStream[OrderBookEvent]] = {
+    configOpt.map { config =>
+      val receiver  = new MarketDataReceiver(config.url, config.username, config.password, CFD_DEMO)
+      val ssc       = new StreamingContext(getSparkContext(config), Duration(10000))
       ssc.checkpoint(config.directory)
-      val dStream = ssc.receiverStream(receiver)
+      val dStream   = ssc.receiverStream(receiver)
+      dStream
     }
   }
 
   def getSparkContext(config: LmaxStreamingConfig): SparkContext = {
-    val conf = new SparkConf()
+    val conf    = new SparkConf()
     conf.setMaster(config.sparkUrl)
-    conf.setAppName("ftse")
+    conf.setAppName("LMAX")
     val context = SparkContext.getOrCreate(conf)
     config.jars.foreach { jar =>
       debug(s"Adding JAR $jar")
@@ -48,6 +59,4 @@ object LmaxStreamingMain extends Logging {
     }
     context
   }
-
-
 }
