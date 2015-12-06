@@ -1,7 +1,8 @@
 package com.henryp
 
-import collection.mutable
-import org.scalatest.{Matchers, FlatSpec}
+import org.scalatest.{FlatSpec, Matchers}
+
+import scala.collection.mutable
 
 class MySpecTest extends FlatSpec with Matchers {
 

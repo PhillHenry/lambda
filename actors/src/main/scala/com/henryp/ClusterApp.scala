@@ -1,7 +1,7 @@
 package com.henryp
 
-import akka.actor.{PoisonPill, Props, ActorSystem}
-import akka.cluster.routing.{ClusterRouterGroup, ClusterRouterGroupSettings, HeapMetricsSelector, AdaptiveLoadBalancingGroup}
+import akka.actor.{ActorSystem, PoisonPill, Props}
+import akka.cluster.routing.{AdaptiveLoadBalancingGroup, ClusterRouterGroup, ClusterRouterGroupSettings, HeapMetricsSelector}
 import akka.contrib.pattern.ClusterSingletonManager
 import akka.routing.RoundRobinPool
 import com.henryp.actors.{SingletonActor, TickActor}

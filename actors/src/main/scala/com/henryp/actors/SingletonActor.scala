@@ -1,6 +1,6 @@
 package com.henryp.actors
 
-import akka.actor.{ActorLogging, Actor}
+import akka.actor.{Actor, ActorLogging}
 
 class SingletonActor extends Actor with ActorLogging {
 

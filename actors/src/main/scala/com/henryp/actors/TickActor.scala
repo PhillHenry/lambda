@@ -1,7 +1,6 @@
 package com.henryp.actors
 
-import akka.actor.{ActorLogging, Actor}
-import akka.actor.Actor.Receive
+import akka.actor.{Actor, ActorLogging}
 
 class TickActor extends Actor with ActorLogging {
 

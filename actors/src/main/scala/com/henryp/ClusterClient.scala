@@ -1,9 +1,7 @@
 package com.henryp
 
-import akka.actor.{Props, ActorSystem}
+import akka.actor.ActorSystem
 import akka.contrib.pattern.ClusterSingletonProxy
-import com.henryp._
-import com.henryp.actors.SingletonActor
 import com.typesafe.config.ConfigFactory
 
 /**

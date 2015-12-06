@@ -11,6 +11,7 @@
         <module>hadoop</module>
         <module>spark</module>
         <module>integration-tests</module>
+        <module>logging</module>
     </modules>
     <properties>
         <scala.version>2.11.7</scala.version>

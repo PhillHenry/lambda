@@ -2,7 +2,7 @@ package com.henryp.thirdparty.kafka
 
 import java.net.InetSocketAddress
 
-import org.apache.zookeeper.server.{ZooKeeperServer, ServerCnxnFactory}
+import org.apache.zookeeper.server.{ServerCnxnFactory, ZooKeeperServer}
 
 
 class ZookeeperStarter() {

@@ -13,6 +13,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.henryp.lambda</groupId>
+            <artifactId>logging</artifactId>
+            <version>${pom.parent.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-streaming_2.11</artifactId>
             <version>${spark.version}</version>
@@ -21,6 +26,14 @@
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-streaming-kafka_2.11</artifactId>
             <version>${spark.version}</version>
+        </dependency>
+        <!-- You will need to ask the nice people at LMAX for this JAR and install it locally with something like:
+            mvn install:install-file -Dfile=../../../Java/LMAX/java-api/java-api.jar -DgroupId=com.lmax -DartifactId=java-api -Dversion=1.8.3 -Dpackaging=jar
+         -->
+        <dependency>
+            <groupId>com.lmax</groupId>
+            <artifactId>java-api</artifactId>
+            <version>1.8.3</version>
         </dependency>
     </dependencies>
 
