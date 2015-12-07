@@ -8,7 +8,7 @@ import org.apache.spark.streaming.{Duration, StreamingContext}
 import org.apache.spark.{SparkConf, SparkContext}
 
 case class LmaxStreamingConfig(url: String = "https://web-order.london-demo.lmax.com",
-                               username: String = "phillhenry",
+                               username: String = "philliphenry",
                                password: String = "secret",
                                sparkUrl: String = "local[*]",
                                directory: String = "/tmp/TODO",
@@ -31,20 +31,24 @@ object LmaxStreamingMain extends Logging {
   }
 
   def main(args: Array[String]): Unit = {
-    val dStreamOpt  = createStream(parseArgs(args))
+    val dStreamOpt  = createStreamAndContext(parseArgs(args))
     val streamFn    = new LmaxStreamConsumer
-    dStreamOpt.foreach { stream =>
+    dStreamOpt.foreach { streamAndCtx =>
+      val stream  = streamAndCtx._1
+      val ssc     = streamAndCtx._2
       streamFn(stream)
+      ssc.start()
     }
+    Thread.sleep(20000)
   }
 
-  def createStream(configOpt: Option[LmaxStreamingConfig]): Option[ReceiverInputDStream[OrderBookEvent]] = {
+  def createStreamAndContext(configOpt: Option[LmaxStreamingConfig]): Option[(ReceiverInputDStream[OrderBookEvent], StreamingContext)] = {
     configOpt.map { config =>
       val receiver  = new MarketDataReceiver(config.url, config.username, config.password, CFD_DEMO)
       val ssc       = new StreamingContext(getSparkContext(config), Duration(10000))
       ssc.checkpoint(config.directory)
       val dStream   = ssc.receiverStream(receiver)
-      dStream
+      (dStream, ssc)
     }
   }
 
