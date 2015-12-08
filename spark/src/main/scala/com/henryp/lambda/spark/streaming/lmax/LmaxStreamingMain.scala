@@ -1,9 +1,6 @@
 package com.henryp.lambda.spark.streaming.lmax
 
 import com.henryp.lambda.logging.Logging
-import com.lmax.api.account.LoginRequest.ProductType.CFD_DEMO
-import com.lmax.api.orderbook.OrderBookEvent
-import org.apache.spark.streaming.dstream.ReceiverInputDStream
 import org.apache.spark.streaming.{Duration, StreamingContext}
 import org.apache.spark.{SparkConf, SparkContext}
 
@@ -31,25 +28,42 @@ object LmaxStreamingMain extends Logging {
   }
 
   def main(args: Array[String]): Unit = {
-    val dStreamOpt  = createStreamAndContext(parseArgs(args))
-    val streamFn    = new LmaxStreamConsumer
-    dStreamOpt.foreach { streamAndCtx =>
-      val stream  = streamAndCtx._1
-      val ssc     = streamAndCtx._2
-      streamFn(stream)
-      ssc.start()
-    }
-    Thread.sleep(20000)
+    start(parseArgs(args))
+
+    Thread.sleep(20000) // TODO sleep forever when testing is finished
   }
 
-  def createStreamAndContext(configOpt: Option[LmaxStreamingConfig]): Option[(ReceiverInputDStream[OrderBookEvent], StreamingContext)] = {
-    configOpt.map { config =>
-      val receiver  = new MarketDataReceiver(config.url, config.username, config.password, CFD_DEMO)
-      val ssc       = new StreamingContext(getSparkContext(config), Duration(10000))
-      ssc.checkpoint(config.directory)
-      val dStream   = ssc.receiverStream(receiver)
-      (dStream, ssc)
+  def start(configOpt: Option[LmaxStreamingConfig]): Unit = {
+    configOpt.foreach { config =>
+      info(s"url = ${config.url}, username = ${config.username}, ${config.password.map(x => '*')}")
+
+      val context           = getSparkContext(config)
+      val streamFn          = initConsumer(config, context)
+
+      startStreaming(config, context, streamFn)
     }
+  }
+
+  def startStreaming(config: LmaxStreamingConfig, context: SparkContext, streamFn: LmaxStreamConsumer): Unit = {
+    val ssc       = initStreamingContext(config, context)
+    val receiver  = new MarketDataReceiver(config)
+    val dStream   = ssc.receiverStream(receiver)
+    streamFn(dStream)
+    info("starting ssc")
+    ssc.start()
+  }
+
+  def initStreamingContext(config: LmaxStreamingConfig, context: SparkContext): StreamingContext = {
+    val ssc = new StreamingContext(context, Duration(10000))
+    ssc.checkpoint(config.directory)
+    ssc
+  }
+
+  def initConsumer(config: LmaxStreamingConfig, context: SparkContext): LmaxStreamConsumer = {
+    val instruments = Lmax.allInstruments(config)
+    val bInstruments = context.broadcast(instruments)
+    val streamFn = new LmaxStreamConsumer(bInstruments)
+    streamFn
   }
 
   def getSparkContext(config: LmaxStreamingConfig): SparkContext = {
