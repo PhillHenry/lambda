@@ -6,11 +6,11 @@
 
     <parent>
         <artifactId>lambda</artifactId>
-        <groupId>com.henryp</groupId>
+        <groupId>uk.co.odinconsultants</groupId>
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.henryp.lambda</groupId>
+    <groupId>uk.co.odinconsultants.lambda</groupId>
     <artifactId>logging</artifactId>
     <version>1.0-SNAPSHOT</version>
 
