@@ -11,6 +11,7 @@ import com.lmax.api.{Callback, FailureResponse, LmaxApi, Session}
 import org.apache.spark.storage.StorageLevel
 import org.apache.spark.streaming.receiver.Receiver
 
+import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.Future
 
 class MarketDataReceiver(url: String, username: String, password: String, productType: ProductType)
@@ -25,7 +26,8 @@ class MarketDataReceiver(url: String, username: String, password: String, produc
 
     import scala.concurrent.ExecutionContext.Implicits._
     Future {
-      lmaxApi.login(loginRequest, loginClient(url, username, this))
+      val loginCallback = loginClient(url, username, this)
+      lmaxApi.login(loginRequest, loginCallback)
     }
   }
 
@@ -35,22 +37,25 @@ class MarketDataReceiver(url: String, username: String, password: String, produc
 }
 
 object MarketDataReceiver {
-  def loginClient(url: String, username: String, receiver: Receiver[OrderBookEvent])
-    = new OrderBookEventListener with LoginCallback with Logging {
+
+  def loginClient(url: String, username: String, receiver: Receiver[OrderBookEvent]): LoginCallback
+      = new OrderBookEventListener with LoginCallback with Logging {
+
     override def onLoginFailure(failureResponse: FailureResponse): Unit = {
       error(s"Could not login to $url with username $username")
       receiver.stop(failureResponse.getDescription, failureResponse.getException)
     }
 
-    override def onLoginSuccess(session: Session): Unit = {
+    override def onLoginSuccess(lmaxSession: Session): Unit = {
       info(s"Successfully logged in to LMAX ($url) as $username")
 
-      subscribeToAll(session)
+      val instruments = subscribeToAll(lmaxSession)
 
-      session.start()
+      lmaxSession.start()
     }
 
     def subscriptionCallback(instrumentId: Long): Callback = new Callback {
+
       override def onFailure(failureResponse: FailureResponse): Unit = error(failureResponse.getDescription)
 
       override def onSuccess(): Unit = info(s"Subscribed to $instrumentId")
@@ -59,13 +64,14 @@ object MarketDataReceiver {
     /**
       * @see com.lmax.api.MarketDataClient
       */
-    def subscribeToAll(session: Session): Unit = {
+    def subscribeToAll(lmaxSession: Session): Array[Long] = {
       import scala.collection.JavaConversions._
 
-      session.registerOrderBookEventListener(this)
+      lmaxSession.registerOrderBookEventListener(this)
 
       val offset  = Array(0L)
       val hasMore = Array(true)
+      val allInstruments = ArrayBuffer[Long]()
 
       while (hasMore(0)) {
         val searchInstrumentCallback = new SearchInstrumentCallback() {
@@ -74,8 +80,9 @@ object MarketDataReceiver {
 
             for (instrument <- instruments) {
               val instrumentId = instrument.getId
+              allInstruments += instrumentId
               info(s"Instrument: $instrumentId,  + ${instrument.getName}")
-              session.subscribe(new OrderBookSubscriptionRequest(instrumentId), subscriptionCallback(instrumentId))
+              lmaxSession.subscribe(new OrderBookSubscriptionRequest(instrumentId), subscriptionCallback(instrumentId))
               offset(0) = instrumentId
             }
           }
@@ -85,8 +92,10 @@ object MarketDataReceiver {
             throw new RuntimeException("Failed: " + failureResponse)
           }
         }
-        session.searchInstruments(new SearchInstrumentRequest("", offset(0)), searchInstrumentCallback)
+        lmaxSession.searchInstruments(new SearchInstrumentRequest("", offset(0)), searchInstrumentCallback)
       }
+
+      allInstruments.toArray
     }
 
 
